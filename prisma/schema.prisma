@@ -16,4 +16,6 @@ model Food {
     protein Float
     carb Float
     fat Float 
+
+    @@map("food")  // maps Prisma model to lowercase table in Postgres
 }
