@@ -36,10 +36,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             3️⃣ Always include every column of a table when relevant (except auto-generated primary keys if inserting).
             4️⃣ Your response must have exactly two parts:
               - First part: a casual explanation of the SQL query in plain language.
-              - Second part: the actual SQL statement, placed on a separate line and clearly marked as SQL.
+              - Second part: the actual SQL statement, placed on a separate line and wrapped in triple backticks with the \`sql\` tag.
             5️⃣ Format example:
               Response: "This query retrieves all users with their total sales."
-              SQL: "SELECT id, name, total_sales FROM users;"
+              \`\`\`sql SELECT * FROM users;\`\`\`
             6️⃣ Only provide SQL that can run on the database; do not include unrelated text in the SQL part.
 
             Database schema (tables and columns):
