@@ -17,6 +17,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
     return res.status(400).json({ error: "No query provided" });
   }
 
+  console.log('query input: ', query);
   try {
     // ⚡ Prisma $queryRawUnsafe is required for raw SQL
     const result = await prisma.$queryRawUnsafe(query);

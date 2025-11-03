@@ -6,7 +6,7 @@ import SQLEditorPage from "./pages/editor";
 import {useState} from 'react';
 
 export default function Home() {
-    const [sql, setSql] = useState<string>();
+    const [sql, setSql] = useState<string>("");
   
   function onInsertSQL (sqlStaement: string) {
     console.log(sqlStaement)
