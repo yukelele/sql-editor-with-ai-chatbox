@@ -31,21 +31,27 @@ export default async function handler(
   try {
     // Load schema dynamically
     const schema = await getDbSchema();
+    console.log('SCHEMA', schema);
 
     // Prompt for OpenAI: provide the current editor text and schema
-    const prompt = `
-            You are an AI assistant providing SQL autocompletion.
-            Current editor text:
-            ${text}
+        // Prompt for SQL Query Generation
+        const prompt = `
+        You are an AI SQL assistant. Follow these rules strictly:
 
-            Database schema:
-            ${JSON.stringify(schema, null, 2)}
+        1️⃣ Reference tables and columns exactly as they exist in the provided database schema. Do not hallucinate fields or tables.
+        2️⃣ Use snake_case column names for all SQL queries.
+        3️⃣ Ensure that all generated SQL queries are valid and executable on the given schema.
+        4️⃣ Always include all relevant columns in SQL statements, whether SELECT, INSERT, or UPDATE.
+        5️⃣ Provide a two-part response:
+        - First, a casual plain-language explanation of the query.
+        - Second, the SQL statement wrapped in triple backticks.
+        6️⃣ Use correct foreign keys when performing JOIN operations. Do not create erroneous relationships between tables.
+        7️⃣ Avoid any hallucinations of tables, columns, or relationships.
+        8️⃣ Produce error-free SQL output. No SQL syntax errors or invalid queries.
 
-            Rules:
-            1️⃣ Only suggest full SQL statement that are valid on the given schema.
-            2️⃣ Suggest 1 statement that make sense based on current text.
-            3️⃣ Respond with a JSON array of strings, nothing else. Example: ["SELECT id, name FROM users;", "SELECT COUNT(*) FROM orders;"]
-`;
+        Current Database schema shown in Prisma (so tables and columns will not shown in snake_case):
+        ${schema}
+        `;
 
     const response = await openai.chat.completions.create({
       model: "gpt-4o-mini",

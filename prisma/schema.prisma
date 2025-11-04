@@ -1,5 +1,3 @@
-// prisma/schema.prisma
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -9,13 +7,62 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Food {
-    id Int @id @default(autoincrement())
-    name String
-    calorie Float
-    protein Float
-    carb Float
-    fat Float 
+model Customer {
+  id         Int         @id @default(autoincrement()) @map("id")
+  name       String      @map("name")
+  email      String      @unique @map("email")
+  createdAt  DateTime    @default(now()) @map("created_at")
+  purchases  Purchase[]
+  reviews    Review[]
 
-    @@map("food")  // maps Prisma model to lowercase table in Postgres
+  @@map("customer")
+}
+
+model Product {
+  id            Int            @id @default(autoincrement()) @map("id")
+  name          String         @map("name")
+  category      String         @map("category")
+  price         Decimal        @db.Decimal(10, 2) @map("price")
+  stock         Int            @map("stock")
+  purchaseItems PurchaseItem[]
+  reviews       Review[]
+
+  @@map("product")
+}
+
+model Purchase {
+  id             Int             @id @default(autoincrement()) @map("id")
+  customerId     Int             @map("customer_id")
+  purchaseDate   DateTime        @default(now()) @map("purchase_date")
+  status         String          @map("status")
+  totalAmount    Decimal         @db.Decimal(10, 2) @map("total_amount")
+  customer       Customer        @relation(fields: [customerId], references: [id])
+  purchaseItems  PurchaseItem[]
+
+  @@map("purchase")
+}
+
+model PurchaseItem {
+  id           Int        @id @default(autoincrement()) @map("id")
+  purchaseId   Int        @map("purchase_id")
+  productId    Int        @map("product_id")
+  quantity     Int        @map("quantity")
+  unitPrice    Decimal    @db.Decimal(10, 2) @map("unit_price")
+  purchase     Purchase   @relation(fields: [purchaseId], references: [id])
+  product      Product    @relation(fields: [productId], references: [id])
+
+  @@map("purchase_item")
+}
+
+model Review {
+  id         Int        @id @default(autoincrement()) @map("id")
+  productId  Int        @map("product_id")
+  customerId Int        @map("customer_id")
+  rating     Int        @map("rating")
+  comment    String?    @map("comment")
+  createdAt  DateTime   @default(now()) @map("created_at")
+  product    Product    @relation(fields: [productId], references: [id])
+  customer   Customer   @relation(fields: [customerId], references: [id])
+
+  @@map("review")
 }

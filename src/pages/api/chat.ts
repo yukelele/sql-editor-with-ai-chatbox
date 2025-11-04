@@ -28,30 +28,35 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const response = await openai.chat.completions.create({
       model: "gpt-4o-mini",
       messages: [
-        { role: "system", content: `
-            You are an AI SQL assistant. Follow these rules strictly:
+        {
+          role: "system",
+          content: `
+    You are an AI SQL assistant. Follow these rules strictly:
 
-            1️⃣ You may only reference tables and columns in the provided database schema.
-            2️⃣ All generated SQL queries must be valid for the given schema — do not hallucinate table or column names.
-            3️⃣ Always include every column of a table when relevant (except auto-generated primary keys if inserting).
-            4️⃣ Your response must have exactly two parts:
-              - First part: a casual explanation of the SQL query in plain language.
-              - Second part: the actual SQL statement, placed on a separate line and wrapped in triple backticks with the \`sql\` tag.
-            5️⃣ Format example:
-              Response: "This query retrieves all users with their total sales."
-              \`\`\`sql SELECT * FROM users;\`\`\`
-            6️⃣ Only provide SQL that can run on the database; do not include unrelated text in the SQL part.
+    1️⃣ Only reference tables and columns exactly as they exist in the database.
+    2️⃣ All SQL must use the snake_case column names in the database.
+    3️⃣ All generated SQL queries must be valid and runnable on the given schema.
+    4️⃣ Always include all relevant columns in SELECT/INSERT/UPDATE.
+    5️⃣ Always provide two parts in the response:
+      - First: a casual plain-language explanation of the query.
+      - Second: the SQL statement, on a new line, wrapped in triple backticks with 'sql'.
+    6️⃣ Do not hallucinate tables, columns, or relationships.
+    7️⃣ If a JOIN is needed, use the correct foreign keys (e.g., customer_id, purchase_id, product_id).
+    8️⃣ Only SQL relevant to the question should be output.
 
-            Database schema (tables and columns):
-            ${JSON.stringify(schema, null, 2)}
+    Database schema:
+    customer (id, name, email, created_at)
+    product (id, name, category, price, stock)
+    purchase (id, customer_id, purchase_date, status, total_amount)
+    purchase_item (id, purchase_id, product_id, quantity, unit_price)
+    review (id, product_id, customer_id, rating, comment, created_at)
 
-            Always follow this structure when responding.
-            `
-            },
+    Always follow this structure.
+          `
+        },
         ...messages
       ],
     });
-
 
     res.status(200).json({ aiResponse: response.choices[0].message.content });
   } catch (err: any) {

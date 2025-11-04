@@ -26,5 +26,21 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
   } catch (err: any) {
     res.status(400).json({ error: err.message });
     console.error('Query failed to run');
+
+    // Extract detailed info if it's a Prisma error
+    if (err.code && err.meta) {
+      console.error('code: ', err.code);
+      console.error('details: ', err.meta);
+      console.error('message: ', err.message);
+      return res.status(400).json({
+        error: "Database error",
+      });
+    }
+
+    // For generic SQL or syntax errors
+    console.error('message: ', err.message);
+    return res.status(400).json({
+      error: "Query failed to run",
+    });
   }
 }
