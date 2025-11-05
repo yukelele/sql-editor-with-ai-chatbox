@@ -34,23 +34,51 @@ export default async function handler(
     console.log('SCHEMA', schema);
 
     const prompt = `
-    You are an AI SQL autocomplete assistant for a live SQL editor.
+      You are an AI SQL autocomplete assistant for a live SQL editor.
 
-    Rules:
-    1. Only suggest read-only SQL completions (SELECT, FROM, WHERE, JOIN, GROUP BY, ORDER BY, etc.). Never INSERT, UPDATE, DELETE, ALTER, or DROP.
-    2. Suggest a fully complete SQL statement. 
-    4. Suggest a maximum of 5 short completions. Avoid duplicates.
-    5. Respond ONLY with a JSON object: { "suggestions": ["...", "..."] }. No explanations or extra text.
+      Rules:
+      1. Suggest **read-only SQL keywords** (SELECT, FROM, WHERE, JOIN, GROUP BY, ORDER BY, LIMIT, etc.). Never INSERT, UPDATE, DELETE, ALTER, DROP.
+      2. Suggest **columns, tables, operators, functions, aliases, and parameters** only from the provided schema.
+      3. Suggest **operators** (<, >, =, <=, >=, !=, AND, OR, NOT, LIKE, etc.) only when contextually valid (e.g., after a column in WHERE, ON, or HAVING clauses).
+      4. Use **cursor position** to decide what to suggest: column names, table names, keywords, operators, functions, aliases, or parameters.
+      5. Suggest up to **5 items** and avoid duplicates.
+      6. If no valid suggestions exist at the cursor position (e.g., invalid or unclear context), return an **empty array**. Do not hallucinate suggestions.
+      7. Respond **ONLY with a JSON object**; no extra text or explanation.
+      8. Use this mapping for Monaco completion kinds:
 
-    Current schema:
-    ${JSON.stringify(schema, null, 2)}
+        SQL_Type → Monaco Kind
+        Keyword → Keyword
+        Operator → Operator
+        Function → Function
+        Table → Table
+        Column → Field
+        Column (with alias) → Property
+        Table alias → Variable
+        Query variable → Variable
+        Boolean / NULL constant → Constant
+        Other → Text
 
-    Current SQL:
-    ${text}
+      9. Return this JSON format exactly:
+      {
+        "suggestions": [
+          {"text": "WHERE", "type": "Keyword"},
+          {"text": "id", "type": "Field"},
+          {"text": "customer", "type": "Table"},
+          {"text": "LIKE", "type": "Operator"},
+          {"text": "COUNT", "type": "Function"}
+        ]
+      }
 
-    Cursor position:
-    ${cursorOffset}
+      Current schema:
+      ${JSON.stringify(schema, null, 2)}
+
+      Current SQL:
+      ${text}
+
+      Cursor position:
+      ${cursorOffset}
     `;
+
 
     const response = await openai.chat.completions.create({
       model: "gpt-4o-mini",

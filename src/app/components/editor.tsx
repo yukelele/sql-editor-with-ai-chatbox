@@ -14,7 +14,6 @@ interface SQLEditorPageProps {
     setSql: (sql: string) => void
 }
 
-
 export default function SQLEditorPage({sql, setSql}: SQLEditorPageProps) {
     const [data, setData] = useState<Record<string, any>[]>([]);
     const [columns, setColumns] = useState<ColumnDef<Record<string,any>>[]>([]);
@@ -66,21 +65,18 @@ useEffect(() => {
           endColumn: word.endColumn || position.column
         };
 
-        // Map suggestions to Monaco CompletionItem format
-        const suggestions = data.suggestions.map((s: string) => {
-          const kind =
-            s.includes(".") ? monaco.languages.CompletionItemKind.Property : // maybe columns
-            monaco.languages.CompletionItemKind.Keyword; // SQL keywords
+        const suggestions = data.suggestions.map((s: {text: string, type: string}) => {
+          const label = s.text;
+          const kind = s.type;
 
           return {
-          label: s.length > 60 ? s.slice(0, 60) + "..." : s,
-          kind: kind,
-          insertText: s,
-          documentation: { value: "```sql\n" + s + "\n```", isTrusted: true },
-          range
-      }});
-
-                  console.log("Returning suggestions: -----------", suggestions);
+            label: label, 
+            kind: monaco.languages.CompletionItemKind[kind],
+            insertText: label,
+            documentation: { value: "```sql\n" + label + "\n```", isTrusted: true },
+            range
+          }
+        });
 
         return { suggestions };
       } catch (err) {
@@ -115,6 +111,8 @@ useEffect(() => {
       });
       const result = await res.json();
 
+      console.log('QUERY RESULT --- ', result);
+
       if (result?.result?.length) {
         const colKeys = Object.keys(result.result[0]);
         setColumns(colKeys.map((key) => ({ accessorKey: key, header: key })));
@@ -144,9 +142,8 @@ useEffect(() => {
                 defaultLanguage="sql"
                 value={sql}
                 onChange={(value) => setSql(value || "")}
-                onMount={(editor, monaco) => {
+                onMount={(editor) => {
                     editorRef.current = editor;
-
 
                     // re-trigger autocomplete after mount
                     editor.onDidChangeModelContent(() => {
@@ -157,10 +154,8 @@ useEffect(() => {
                     automaticLayout: true,
                     fontSize: 14,
                     minimap: { enabled: false },
-                                suggestOnTriggerCharacters: true,
-                                            quickSuggestions: { other: true, comments: false, strings: false },
-
-
+                    suggestOnTriggerCharacters: true,
+                    quickSuggestions: { other: true, comments: false, strings: false },
                 }}
             />
         </div>
@@ -173,7 +168,9 @@ useEffect(() => {
             {error && <p className="text-red-500">{error}</p>}
         </div>
         <div className="w-[95%] overflow-auto" style={{ width: "95%", flex: "1 1 auto", minHeight: 0 }}>
-            <DataTable columns={columns} data={data} />
+            {loading ? 
+                <div className="flex items-center gap-2"><Spinner />{"Running..."}</div> : 
+                <DataTable columns={columns} data={data} />}
         </div>
     </div>
     
