@@ -1,0 +1,22 @@
+[
+    { "name": "Laptop", "category": "Electronics", "price": 1200.0, "stock": 10 },
+    { "name": "Smartphone", "category": "Electronics", "price": 800.0, "stock": 20 },
+    { "name": "Headphones", "category": "Electronics", "price": 150.0, "stock": 50 },
+    { "name": "Monitor", "category": "Electronics", "price": 300.0, "stock": 15 },
+    { "name": "Keyboard", "category": "Electronics", "price": 100.0, "stock": 40 },
+    { "name": "Mouse", "category": "Electronics", "price": 50.0, "stock": 60 },
+    { "name": "Chair", "category": "Furniture", "price": 200.0, "stock": 25 },
+    { "name": "Desk", "category": "Furniture", "price": 350.0, "stock": 10 },
+    { "name": "Notebook", "category": "Stationery", "price": 5.0, "stock": 100 },
+    { "name": "Pen", "category": "Stationery", "price": 2.0, "stock": 200 },
+    { "name": "Backpack", "category": "Accessories", "price": 60.0, "stock": 30 },
+    { "name": "Jacket", "category": "Clothing", "price": 120.0, "stock": 20 },
+    { "name": "T-shirt", "category": "Clothing", "price": 25.0, "stock": 50 },
+    { "name": "Sneakers", "category": "Footwear", "price": 90.0, "stock": 40 },
+    { "name": "Socks", "category": "Clothing", "price": 5.0, "stock": 100 },
+    { "name": "Coffee Maker", "category": "Appliances", "price": 80.0, "stock": 15 },
+    { "name": "Blender", "category": "Appliances", "price": 60.0, "stock": 20 },
+    { "name": "Cookware Set", "category": "Kitchen", "price": 120.0, "stock": 15 },
+    { "name": "Plate Set", "category": "Kitchen", "price": 50.0, "stock": 30 },
+    { "name": "Water Bottle", "category": "Accessories", "price": 15.0, "stock": 80 }
+  ]

@@ -25,15 +25,15 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 
 
 
-# Rebuild Schema and Initialize DataSet
+# Locally build Schema and initialize mock data
 ## optinal if migrations are out of sync
 ```rm -recurse -force prisma/migrations```
-
-## drop + create schemas
-```npx prisma migrate reset```
 
 ## create schemas
 ```npx prisma migrate dev --name init```
 
-## create dataset
-```npx prisma db seed```
+## drop + create schemas
+```npx prisma migrate reset```
+
+### view database
+```npx prisma studio``` 

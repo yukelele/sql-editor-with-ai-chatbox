@@ -1,0 +1,22 @@
+[
+  { "customerId": 1, "productId": 1, "rating": 5, "comment": "Excellent laptop!", "createdAt": "2025-01-01T00:00:00.000Z" },
+  { "customerId": 2, "productId": 2, "rating": 4, "comment": "Good smartphone.", "createdAt": "2025-01-02T00:00:00.000Z" },
+  { "customerId": 3, "productId": 3, "rating": 3, "comment": "Average headphones.", "createdAt": "2025-01-03T00:00:00.000Z" },
+  { "customerId": 4, "productId": 4, "rating": 5, "comment": "Great monitor!", "createdAt": "2025-01-04T00:00:00.000Z" },
+  { "customerId": 5, "productId": 5, "rating": 4, "comment": "Nice keyboard.", "createdAt": "2025-01-05T00:00:00.000Z" },
+  { "customerId": 6, "productId": 6, "rating": 3, "comment": "Mouse is okay.", "createdAt": "2025-01-06T00:00:00.000Z" },
+  { "customerId": 7, "productId": 7, "rating": 5, "comment": "Love this chair!", "createdAt": "2025-01-07T00:00:00.000Z" },
+  { "customerId": 8, "productId": 8, "rating": 4, "comment": "Desk looks good.", "createdAt": "2025-01-08T00:00:00.000Z" },
+  { "customerId": 9, "productId": 9, "rating": 3, "comment": "Notebook is fine.", "createdAt": "2025-01-09T00:00:00.000Z" },
+  { "customerId": 10, "productId": 10, "rating": 5, "comment": "Pen writes well!", "createdAt": "2025-01-10T00:00:00.000Z" },
+  { "customerId": 11, "productId": 11, "rating": 4, "comment": "Backpack is nice.", "createdAt": "2025-01-11T00:00:00.000Z" },
+  { "customerId": 12, "productId": 12, "rating": 5, "comment": "Jacket is cozy.", "createdAt": "2025-01-12T00:00:00.000Z" },
+  { "customerId": 13, "productId": 13, "rating": 3, "comment": "T-shirt is okay.", "createdAt": "2025-01-13T00:00:00.000Z" },
+  { "customerId": 14, "productId": 14, "rating": 4, "comment": "Sneakers are comfy.", "createdAt": "2025-01-14T00:00:00.000Z" },
+  { "customerId": 15, "productId": 15, "rating": 2, "comment": "Socks are too thin.", "createdAt": "2025-01-15T00:00:00.000Z" },
+  { "customerId": 16, "productId": 16, "rating": 5, "comment": "Coffee maker is excellent!", "createdAt": "2025-01-16T00:00:00.000Z" },
+  { "customerId": 17, "productId": 17, "rating": 4, "comment": "Blender works well.", "createdAt": "2025-01-17T00:00:00.000Z" },
+  { "customerId": 18, "productId": 18, "rating": 5, "comment": "Cookware set is solid.", "createdAt": "2025-01-18T00:00:00.000Z" },
+  { "customerId": 19, "productId": 19, "rating": 3, "comment": "Plate set is okay.", "createdAt": "2025-01-19T00:00:00.000Z" },
+  { "customerId": 20, "productId": 20, "rating": 4, "comment": "Water bottle is great.", "createdAt": "2025-01-20T00:00:00.000Z" }
+]

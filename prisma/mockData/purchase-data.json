@@ -1,0 +1,22 @@
+[
+  { "customerId": 1, "purchaseDate": "2025-09-10T00:00:00.000Z", "status": "pending", "totalAmount": 120.5 },
+  { "customerId": 2, "purchaseDate": "2025-09-12T00:00:00.000Z", "status": "delivered", "totalAmount": 45.0 },
+  { "customerId": 3, "purchaseDate": "2025-09-15T00:00:00.000Z", "status": "shipped", "totalAmount": 78.25 },
+  { "customerId": 4, "purchaseDate": "2025-09-20T00:00:00.000Z", "status": "cancelled", "totalAmount": 90.0 },
+  { "customerId": 5, "purchaseDate": "2025-09-25T00:00:00.000Z", "status": "delivered", "totalAmount": 150.75 },
+  { "customerId": 6, "purchaseDate": "2025-09-28T00:00:00.000Z", "status": "pending", "totalAmount": 60.0 },
+  { "customerId": 7, "purchaseDate": "2025-10-01T00:00:00.000Z", "status": "shipped", "totalAmount": 35.5 },
+  { "customerId": 8, "purchaseDate": "2025-10-03T00:00:00.000Z", "status": "delivered", "totalAmount": 200.0 },
+  { "customerId": 9, "purchaseDate": "2025-10-06T00:00:00.000Z", "status": "pending", "totalAmount": 125.0 },
+  { "customerId": 10, "purchaseDate": "2025-10-08T00:00:00.000Z", "status": "shipped", "totalAmount": 80.99 },
+  { "customerId": 11, "purchaseDate": "2025-10-10T00:00:00.000Z", "status": "pending", "totalAmount": 50.5 },
+  { "customerId": 12, "purchaseDate": "2025-10-11T00:00:00.000Z", "status": "cancelled", "totalAmount": 99.95 },
+  { "customerId": 13, "purchaseDate": "2025-10-12T00:00:00.000Z", "status": "delivered", "totalAmount": 30.0 },
+  { "customerId": 14, "purchaseDate": "2025-10-13T00:00:00.000Z", "status": "shipped", "totalAmount": 110.2 },
+  { "customerId": 15, "purchaseDate": "2025-10-14T00:00:00.000Z", "status": "pending", "totalAmount": 85.75 },
+  { "customerId": 16, "purchaseDate": "2025-10-16T00:00:00.000Z", "status": "delivered", "totalAmount": 140.0 },
+  { "customerId": 17, "purchaseDate": "2025-10-18T00:00:00.000Z", "status": "pending", "totalAmount": 65.5 },
+  { "customerId": 18, "purchaseDate": "2025-10-20T00:00:00.000Z", "status": "delivered", "totalAmount": 77.77 },
+  { "customerId": 19, "purchaseDate": "2025-10-22T00:00:00.000Z", "status": "shipped", "totalAmount": 95.1 },
+  { "customerId": 20, "purchaseDate": "2025-10-25T00:00:00.000Z", "status": "pending", "totalAmount": 180.0 }
+]
