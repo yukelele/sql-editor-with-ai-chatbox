@@ -2,9 +2,10 @@
 
 import dynamic from "next/dynamic";
 import { useState, useRef, useEffect } from "react";
-import { Button } from "../../components/ui/button";
-import { DataTable } from "@/src/components/ui/dataTable";
+import { DataTable } from "@/src/app/components/dataTable";
 import { ColumnDef } from "@tanstack/react-table";
+import { Button } from "@/components/ui/button";
+import { Spinner } from "@/components/ui/spinner";
 
 const MonacoEditor = dynamic(() => import("@monaco-editor/react"), { ssr: false });
 
@@ -18,10 +19,8 @@ export default function SQLEditorPage({sql, setSql}: SQLEditorPageProps) {
     const [columns, setColumns] = useState<ColumnDef<Record<string,any>>[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
-      const editorRef = useRef<any>(null);
-        const providerRef = useRef<any>(null); // track provider to clean up
-
-
+    const editorRef = useRef<any>(null);
+    const providerRef = useRef<any>(null); // track provider to clean up
 
   // ✅ Initialize autocomplete provider
   useEffect(() => {
@@ -120,8 +119,13 @@ export default function SQLEditorPage({sql, setSql}: SQLEditorPageProps) {
   };
 
   return (
-    <div className="flex flex-col items-center gap-4 p-4">
-        <div style={{ height: "60vh", width: "95%", border: "1px solid black", padding: '1%' }}>
+    <div className="flex flex-col items-center gap-4 p-4 h-screen">
+        <div style={{
+            flex: "0 0 40vh", // fixed height for editor section
+            width: "95%",
+            border: "1px solid black",
+            padding: "1%",
+        }}>
             <MonacoEditor
                 height="100%"
                 width="100%"
@@ -145,11 +149,13 @@ export default function SQLEditorPage({sql, setSql}: SQLEditorPageProps) {
         </div>
         <div>
             <Button onClick={runQuery} disabled={loading}>
-                {loading ? "Running..." : "Run"}
+                {loading ? 
+                <div className="flex items-center gap-2"><Spinner />{"Running..."}</div> : 
+                "Run"}
             </Button>
             {error && <p className="text-red-500">{error}</p>}
         </div>
-        <div style={{ width: "95%" }}>
+        <div className="w-[95%] overflow-auto" style={{ width: "95%", flex: "1 1 auto", minHeight: 0 }}>
             <DataTable columns={columns} data={data} />
         </div>
     </div>

@@ -2,24 +2,34 @@
 
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter"
 import { oneDark } from "react-syntax-highlighter/dist/esm/styles/prism"
-import { Copy, Check, Plus, Play } from "lucide-react"
+import { Copy, Check, Play } from "lucide-react"
 import { useState } from "react";
-import { Button } from "@/src/components/ui/button";
+import { Button } from "@/components/ui/button";
+import { Spinner } from "@/components/ui/spinner";
 
-export default function ChatBox(
-  {onInsertSQL}: {onInsertSQL?: (sql:string) => void}
-) {
+const AI_LOADING_MESSAGE = { role: "assistant", content: '###Thinking...'};
+
+interface SQLEditorPageProps {
+    handleInsertSQL: (sql:string) => void
+}
+
+export default function ChatBox({handleInsertSQL}: SQLEditorPageProps) {
   const [messages, setMessages] = useState<{ role: string; content: string }[]>([]);
-
   const [input, setInput] = useState("");
-
-  const [copiedIndex, setCopiedIndex] = useState<number | null>(null)
+  const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
+  const [insertedIndex, setInsertedIndex] = useState<number | null>(null);
 
   const handleCopy = async (text: string, index: number) => {
     await navigator.clipboard.writeText(text)
     setCopiedIndex(index)
     setTimeout(() => setCopiedIndex(null), 1500)
-  }
+  };
+
+  const handleInsert = async (text: string, index: number) => {
+    handleInsertSQL(text);
+    setInsertedIndex(index)
+    setTimeout(() => setInsertedIndex(null), 1500)
+  };
   
 
   const handleSend = async () => {
@@ -27,20 +37,17 @@ export default function ChatBox(
 
     const updatedMessages = [...messages,{ role: "user", content: input } ]
 
-    setMessages(updatedMessages);
+    setMessages([...updatedMessages, AI_LOADING_MESSAGE]);
     setInput("");
-
     
     const res = await fetch("/api/chat", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ messages: updatedMessages})
                 });
-                    const data = await res.json();
-                    
-                    console.log('CHAT: ', data);
-
-    setMessages(prev => [...prev, { role: "assistant", content: data.aiResponse}])
+    const data = await res.json();
+    
+    setMessages([...updatedMessages, { role: "assistant", content: data.aiResponse}])
   };
 
 
@@ -48,14 +55,14 @@ export default function ChatBox(
     <div className="flex flex-col h-screen bg-gray-50 p-4">
       {/* Chat Messages */}
       <div className="flex-1 overflow-y-auto space-y-3 mb-4">
-        {messages.map((msg, i) => {
+        {messages.map((msg, idx) => {
             const sqlMatch = msg.content.match(/```sql([\s\S]*?)```/i);
             const sqlCode = sqlMatch ? sqlMatch[1].trim() : null;
             const plainText = msg.content.replace(/```sql[\s\S]*?```/gi, "").trim();
 
             return(
             <div
-                key={i}
+                key={idx}
                 className={`flex ${
                 msg.role === "user" ? "justify-end" : "justify-start"
                 }`}
@@ -67,7 +74,9 @@ export default function ChatBox(
                         : "bg-gray-200 text-gray-800"
                     }`}
                 >
-                    {plainText && <div>{plainText}</div>}
+                    {plainText === AI_LOADING_MESSAGE.content 
+                    ? <div className="flex items-center gap-2"><Spinner />{"Thinking..."}</div> 
+                    : <div>{plainText}</div>}
 
                     {sqlCode && (
                         <div className="mt-3">
@@ -77,23 +86,22 @@ export default function ChatBox(
                                 SQL
                             </span>
                             <div className="flex items-center gap-2">
-                              {onInsertSQL && (
                                 <Button
                                     variant="ghost"
                                     size="sm"
-                                    onClick={() => onInsertSQL(sqlCode)}
+                                    onClick={() => handleInsert(sqlCode, idx)}
                                     className="text-zinc-400 hover:text-gray"
                                 >
-                                    <Play size={14} className="mr-1" />
+                                    {insertedIndex === idx ? <Check size={16} /> : <Play size={16} />}
                                 </Button>
-                                )}
+                                
                                 <Button
                                     variant="ghost"
                                     size="sm"
-                                    onClick={() => handleCopy(sqlCode, i)}
+                                    onClick={() => handleCopy(sqlCode, idx)}
                                     className="text-zinc-400 hover:text-gray"
                                 >
-                                    {copiedIndex === i ? <Check size={16} /> : <Copy size={16} />}
+                                    {copiedIndex === idx ? <Check size={16} /> : <Copy size={16} />}
                                 </Button>
                             </div>
                             </div>

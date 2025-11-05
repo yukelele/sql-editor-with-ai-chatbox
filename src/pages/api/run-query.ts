@@ -1,10 +1,12 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import prisma from "../../lib/prisma";
+import { PrismaClient } from "@prisma/client";
 
 type Data = {
   result?: any;
   error?: string;
 };
+
+const prisma = new PrismaClient();
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse<Data>) {
   if (req.method !== "POST") {
@@ -17,7 +19,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
     return res.status(400).json({ error: "No query provided" });
   }
 
-  console.log('query input: ', query);
   try {
     // ⚡ Prisma $queryRawUnsafe is required for raw SQL
     const result = await prisma.$queryRawUnsafe(query);

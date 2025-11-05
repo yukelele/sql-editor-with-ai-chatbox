@@ -33,22 +33,3 @@ export async function getDbSchema() {
 
   return schema;
 }
-
-
-// import { getDMMF } from "@prisma/sdk";
-
-// export async function getDbSchema() {
-//   const schemaPath = "./prisma/schema.prisma"; // adjust path if needed
-//   const dmmf = await getDMMF({ datamodel: schemaPath });
-
-//   const schema: Record<string, string[]> = {};
-
-//   for (const model of dmmf.datamodel.models) {
-//     const tableName = model.dbName || model.name;
-//     schema[tableName] = model.fields
-//       .filter(f => !f.isId)
-//       .map(f => f.name);
-//   }
-
-//   return schema;
-// }
