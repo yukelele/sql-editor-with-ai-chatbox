@@ -11,7 +11,7 @@ const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY! });
 
 interface AutocompleteRequest {
   text: string; // current text in the editor
-  schema: Record<string, string[]>; // optional, fallback if you want
+  cursorOffset: number; // current cursor position in the editor
 }
 
 interface AutocompleteResponse {
@@ -25,7 +25,7 @@ export default async function handler(
   if (req.method !== "POST")
     return res.status(405).json({ error: "Method not allowed" });
 
-  const { text } = req.body as AutocompleteRequest;
+  const { text, cursorOffset } = req.body as AutocompleteRequest;
   if (!text) return res.status(400).json({ error: "Missing text input" });
 
   try {
@@ -33,25 +33,24 @@ export default async function handler(
     const schema = await getDbSchema();
     console.log('SCHEMA', schema);
 
-    // Prompt for OpenAI: provide the current editor text and schema
-        // Prompt for SQL Query Generation
-        const prompt = `
-        You are an AI SQL assistant. Follow these rules strictly:
+    const prompt = `
+    You are an AI SQL autocomplete assistant for a live SQL editor.
 
-        1️⃣ Reference tables and columns exactly as they exist in the provided database schema. Do not hallucinate fields or tables.
-        2️⃣ Use snake_case column names for all SQL queries.
-        3️⃣ Ensure that all generated SQL queries are valid and executable on the given schema.
-        4️⃣ Always include all relevant columns in SQL statements, whether SELECT, INSERT, or UPDATE.
-        5️⃣ Provide a two-part response:
-        - First, a casual plain-language explanation of the query.
-        - Second, the SQL statement wrapped in triple backticks.
-        6️⃣ Use correct foreign keys when performing JOIN operations. Do not create erroneous relationships between tables.
-        7️⃣ Avoid any hallucinations of tables, columns, or relationships.
-        8️⃣ Produce error-free SQL output. No SQL syntax errors or invalid queries.
+    Rules:
+    1. Only suggest read-only SQL completions (SELECT, FROM, WHERE, JOIN, GROUP BY, ORDER BY, etc.). Never INSERT, UPDATE, DELETE, ALTER, or DROP.
+    2. Suggest a fully complete SQL statement. 
+    4. Suggest a maximum of 5 short completions. Avoid duplicates.
+    5. Respond ONLY with a JSON object: { "suggestions": ["...", "..."] }. No explanations or extra text.
 
-        Current Database schema shown in Prisma (so tables and columns will not shown in snake_case):
-        ${schema}
-        `;
+    Current schema:
+    ${JSON.stringify(schema, null, 2)}
+
+    Current SQL:
+    ${text}
+
+    Cursor position:
+    ${cursorOffset}
+    `;
 
     const response = await openai.chat.completions.create({
       model: "gpt-4o-mini",
@@ -66,7 +65,8 @@ export default async function handler(
     let suggestions: string[] = [];
     try {
       const textResponse = response.choices[0].message.content!;
-      suggestions = JSON.parse(textResponse);
+      const parsed = JSON.parse(textResponse);
+      suggestions = parsed.suggestions;
     } catch {
       suggestions = [];
     }
@@ -74,6 +74,8 @@ export default async function handler(
     console.log('api: ', suggestions);
 
     res.status(200).json({ suggestions });
+    // res.status(200).json({ suggestions: response.choices[0].message.content });
+
   } catch (err: any) {
     res.status(500).json({ error: err.message });
   }

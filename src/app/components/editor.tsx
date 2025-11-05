@@ -14,6 +14,7 @@ interface SQLEditorPageProps {
     setSql: (sql: string) => void
 }
 
+
 export default function SQLEditorPage({sql, setSql}: SQLEditorPageProps) {
     const [data, setData] = useState<Record<string, any>[]>([]);
     const [columns, setColumns] = useState<ColumnDef<Record<string,any>>[]>([]);
@@ -22,73 +23,84 @@ export default function SQLEditorPage({sql, setSql}: SQLEditorPageProps) {
     const editorRef = useRef<any>(null);
     const providerRef = useRef<any>(null); // track provider to clean up
 
-  // ✅ Initialize autocomplete provider
-  useEffect(() => {
-    if (!editorRef.current || !(window as any).monaco) return;
-    const monaco = (window as any).monaco;
+// ✅ Initialize autocomplete provider
+useEffect(() => {
+  if (!editorRef.current || !(window as any).monaco) return;
+  const monaco = (window as any).monaco;
 
-    // Prevent duplicate registrations
+  // Prevent duplicate registrations
+  if (providerRef.current) {
+    providerRef.current.dispose();
+    providerRef.current = null;
+  }
+
+  const provider = monaco.languages.registerCompletionItemProvider("sql", {
+    triggerCharacters: [" ", ".", ";", "\n", "=", ",", "(", ")"],
+
+    provideCompletionItems: async (model: any, position: any) => {
+      try {
+        const fullText = model.getValue();
+        const cursorOffset = model.getOffsetAt(position);
+        const word = model.getWordUntilPosition(position);
+
+        // Call the API
+        const res = await fetch("/api/sql-autocomplete", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ text: fullText, cursor: cursorOffset }),
+        });
+
+        const data = await res.json();
+
+        console.log('DATA', data);
+
+        if (!data.suggestions || !Array.isArray(data.suggestions)) {
+          console.log('No suggstions!!!!')
+          return { suggestions: [] };
+        }
+
+        const range = {
+          startLineNumber: position.lineNumber,
+          startColumn: word.startColumn || position.column,
+          endLineNumber: position.lineNumber,
+          endColumn: word.endColumn || position.column
+        };
+
+        // Map suggestions to Monaco CompletionItem format
+        const suggestions = data.suggestions.map((s: string) => {
+          const kind =
+            s.includes(".") ? monaco.languages.CompletionItemKind.Property : // maybe columns
+            monaco.languages.CompletionItemKind.Keyword; // SQL keywords
+
+          return {
+          label: s.length > 60 ? s.slice(0, 60) + "..." : s,
+          kind: kind,
+          insertText: s,
+          documentation: { value: "```sql\n" + s + "\n```", isTrusted: true },
+          range
+      }});
+
+                  console.log("Returning suggestions: -----------", suggestions);
+
+        return { suggestions };
+      } catch (err) {
+        console.error("Autocomplete error:", err);
+        return { suggestions: [] };
+      }
+    },
+  });
+
+  providerRef.current = provider;
+
+  return () => {
     if (providerRef.current) {
       providerRef.current.dispose();
       providerRef.current = null;
     }
-
-    // Register the autocomplete provider
-    const provider = monaco.languages.registerCompletionItemProvider("sql", {
-      triggerCharacters: [" ", ".", ";", "\n"],
-      provideCompletionItems: async (model: any, position: any) => {
-        const textUntilCursor = model.getValueInRange({
-          startLineNumber: 1,
-          startColumn: 1,
-          endLineNumber: position.lineNumber,
-          endColumn: position.column,
-        });
-
-        try {
-          const res = await fetch("/api/sql-autocomplete", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ text: textUntilCursor }),
-          });
-
-          const statementSuggestions = await res.json();
-          console.log('suggestion ------ :', statementSuggestions);
-
-          const suggestions = statementSuggestions.suggestions.map((stmt: string) => ({
-                label: stmt.slice(0, 60) + (stmt.length > 60 ? "..." : ""), // short label for dropdown
-                kind: monaco.languages.CompletionItemKind.Snippet,
-                insertText: stmt,
-                documentation: {
-                    value: "```sql\n" + stmt + "\n```",
-                    isTrusted: true,
-                },
-                range: {
-                    startLineNumber: position.lineNumber,
-                    startColumn: 1,
-                    endLineNumber: position.lineNumber,
-                    endColumn: position.column,
-                },
-                }));
+  };
+}, [editorRef.current]);
 
 
-          return { suggestions };
-        } catch (err) {
-          console.error("Autocomplete error:", err);
-          return { suggestions: [] };
-        }
-      },
-    });
-
-    providerRef.current = provider;
-
-    return () => {
-      // cleanup when editor unmounts or reinitializes
-      if (providerRef.current) {
-        providerRef.current.dispose();
-        providerRef.current = null;
-      }
-    };
-  }, [editorRef.current]);
 
   const runQuery = async () => {
     if (!sql.trim()) return;
@@ -132,8 +144,9 @@ export default function SQLEditorPage({sql, setSql}: SQLEditorPageProps) {
                 defaultLanguage="sql"
                 value={sql}
                 onChange={(value) => setSql(value || "")}
-                onMount={(editor) => {
+                onMount={(editor, monaco) => {
                     editorRef.current = editor;
+
 
                     // re-trigger autocomplete after mount
                     editor.onDidChangeModelContent(() => {
@@ -144,6 +157,10 @@ export default function SQLEditorPage({sql, setSql}: SQLEditorPageProps) {
                     automaticLayout: true,
                     fontSize: 14,
                     minimap: { enabled: false },
+                                suggestOnTriggerCharacters: true,
+                                            quickSuggestions: { other: true, comments: false, strings: false },
+
+
                 }}
             />
         </div>
