@@ -29,17 +29,13 @@ The easiest way to deploy your Next.js app is to use the [Vercel Platform](https
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
 
 
-# Locally build Schema and initialize mock data
-## optinal if migrations are out of sync
+## Locally build Schema and initialize mock data
+# optinal if migrations are out of sync
 ```rm -recurse -force prisma/migrations```
-
-## create schemas
 ```npx prisma migrate dev --name init```
-
-## drop + create schemas
 ```npx prisma migrate reset```
 
-### view database
+### view local database
 ```npx prisma studio``` 
 
 
