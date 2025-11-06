@@ -54,8 +54,6 @@ useEffect(() => {
 
         const data = await res.json();
 
-        console.log('DATA', data);
-
         // If API returned invalid or empty suggestions, return no suggestions
         if (!data || !Array.isArray(data.suggestions) || data.suggestions.length === 0) {
           return { suggestions: [] };
