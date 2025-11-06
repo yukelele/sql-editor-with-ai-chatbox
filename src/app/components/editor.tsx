@@ -6,6 +6,9 @@ import { DataTable } from "@/src/app/components/dataTable";
 import { ColumnDef } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
+import { Tooltip } from "@/components/ui/tooltip";
+import { TooltipContent, TooltipTrigger } from "@radix-ui/react-tooltip";
+import { InfoIcon } from "lucide-react";
 
 const MonacoEditor = dynamic(() => import("@monaco-editor/react"), { ssr: false });
 
@@ -53,8 +56,8 @@ useEffect(() => {
 
         console.log('DATA', data);
 
-        if (!data.suggestions || !Array.isArray(data.suggestions)) {
-          console.log('No suggstions!!!!')
+        // If API returned invalid or empty suggestions, return no suggestions
+        if (!data || !Array.isArray(data.suggestions) || data.suggestions.length === 0) {
           return { suggestions: [] };
         }
 
@@ -111,7 +114,9 @@ useEffect(() => {
       });
       const result = await res.json();
 
-      console.log('QUERY RESULT --- ', result);
+      if (result?.error) {
+        throw Error;
+      }
 
       if (result?.result?.length) {
         const colKeys = Object.keys(result.result[0]);
@@ -122,7 +127,9 @@ useEffect(() => {
         setData([]);
       }
     } catch (err: any) {
-      setError(err.message || "Unknown error");
+      setError("Server Error or Invalid Query: Unable to provide data.\nAsk in the AI chatbox \"what is wrong with this query: **copy&paste sql**\"");
+      setData([]);
+      setColumns([]);
     } finally {
       setLoading(false);
     }
@@ -159,18 +166,30 @@ useEffect(() => {
                 }}
             />
         </div>
-        <div>
+        <div className="flex flex-col items-center">
+          <div>
             <Button onClick={runQuery} disabled={loading}>
-                {loading ? 
-                <div className="flex items-center gap-2"><Spinner />{"Running..."}</div> : 
-                "Run"}
+              {loading ? 
+              <div className="flex items-center gap-2"><Spinner />{"Running..."}</div> : 
+              "Run"}
             </Button>
+            <Tooltip>
+              <TooltipTrigger>
+                  <InfoIcon />
+              </TooltipTrigger>
+              <TooltipContent style={{background: 'gray', color: 'white', padding: '5px', borderRadius: '10px'}}>
+                {"Only 1 SQL query can be run in the editor."}
+              </TooltipContent>
+            </Tooltip>
+          </div>
+          <div>
             {error && <p className="text-red-500">{error}</p>}
+          </div>
         </div>
         <div className="w-[95%] overflow-auto" style={{ width: "95%", flex: "1 1 auto", minHeight: 0 }}>
-            {loading ? 
-                <div className="flex items-center gap-2"><Spinner />{"Running..."}</div> : 
-                <DataTable columns={columns} data={data} />}
+          {loading ? 
+                    <div className="flex items-center gap-2"><Spinner />{"Running..."}</div> : 
+                    <DataTable columns={columns} data={data} />}
         </div>
     </div>
     

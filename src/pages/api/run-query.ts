@@ -20,11 +20,20 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
   }
 
   try {
-    // ⚡ Prisma $queryRawUnsafe is required for raw SQL
-    const result = await prisma.$queryRawUnsafe(query);
-    res.status(200).json({ result });
+    const result = await prisma.$queryRawUnsafe(query) as Array<Record<string, any>>;
+
+    const serializedResult = result.map((row) =>
+      Object.fromEntries(
+        Object.entries(row).map(([k, v]) => [k, typeof v === 'bigint' ? v.toString() : v])
+      )
+    );
+
+    res.status(200).json({ result: serializedResult });
+
+
     console.log('Query ran successfully!');
   } catch (err: any) {
+    console.error(err);
     res.status(400).json({ error: err.message });
     console.error('Query failed to run');
 

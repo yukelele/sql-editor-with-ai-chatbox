@@ -6,8 +6,10 @@ import { Copy, Check, Play } from "lucide-react"
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
+import { Input } from "@/components/ui/input";
 
-const AI_LOADING_MESSAGE = { role: "assistant", content: '###Thinking...'};
+const AI_LOADING_MESSAGE = { role: "assistant", content: '###Thinking###'};
+const AI_ERROR_MESSAGE = {role: "assistant", content: `Sorry, I'm currently unable to provide a response. There seems to be an error on the server side. Please try again later.`}
 
 interface SQLEditorPageProps {
     handleInsertSQL: (sql:string) => void
@@ -18,6 +20,7 @@ export default function ChatBox({handleInsertSQL}: SQLEditorPageProps) {
   const [input, setInput] = useState("");
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
   const [insertedIndex, setInsertedIndex] = useState<number | null>(null);
+  const [loading, setLoading] = useState(false);
 
   const handleCopy = async (text: string, index: number) => {
     await navigator.clipboard.writeText(text)
@@ -35,25 +38,33 @@ export default function ChatBox({handleInsertSQL}: SQLEditorPageProps) {
   const handleSend = async () => {
     if (!input.trim()) return;
 
-    const updatedMessages = [...messages,{ role: "user", content: input } ]
+    setLoading(true);
+
+    const updatedMessages = [...messages, { role: "user", content: input } ]
 
     setMessages([...updatedMessages, AI_LOADING_MESSAGE]);
     setInput("");
-    
-    const res = await fetch("/api/chat", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ messages: updatedMessages})
-                });
-    const data = await res.json();
-    
-    setMessages([...updatedMessages, { role: "assistant", content: data.aiResponse}])
+
+    try {
+      const res = await fetch("/api/chat", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ messages: updatedMessages})
+            });
+      const data = await res.json();
+      
+      setMessages([...updatedMessages, { role: "assistant", content: data.aiResponse}]);
+    } catch(err) {
+      console.error(err);
+      setMessages([...updatedMessages, AI_ERROR_MESSAGE]);
+    } finally {
+      setLoading(false);
+    }
   };
 
 
   return (
     <div className="flex flex-col h-screen bg-gray-50 p-4">
-      {/* Chat Messages */}
       <div className="flex-1 overflow-y-auto space-y-3 mb-4">
         {messages.map((msg, idx) => {
             const sqlMatch = msg.content.match(/```sql([\s\S]*?)```/i);
@@ -127,22 +138,23 @@ export default function ChatBox({handleInsertSQL}: SQLEditorPageProps) {
         }
       </div>
 
-      {/* Input Box */}
       <div className="flex border-t border-gray-300 pt-2">
-        <input
+        <Input
           type="text"
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && handleSend()}
           placeholder="Type your message..."
           className="flex-1 p-2 border border-gray-300 rounded-l-lg outline-none"
+          disabled={loading}
         />
-        <button
+        <Button
           onClick={handleSend}
           className="bg-blue-500 text-white px-4 rounded-r-lg"
+          disabled={loading}
         >
           Send
-        </button>
+        </Button>
       </div>
     </div>
   );
