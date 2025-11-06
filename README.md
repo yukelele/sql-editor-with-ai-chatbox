@@ -1,28 +1,32 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+### Features
+1. SQL editor can run a sql query on a postgres database
+2. AI has the context of the schema of the postgres database (not the actual data)
+3. you can have a conversation with AI chat, and chat can suggest sql queries
+4. the sql queries surfaced in the ai chat should have 2 buttons on them 
+    1. run (replaces the sql query in the sql editor)
+    2. copy (copies sql editor to clipboard)
+5. AI generated queries should be validated (ex: no hallucinated fields or tables should be surfaced to the end user, no queries that are invalid)
+6. AI powered autocomplete in the sql editor, similar to cursor. autocomplete suggestions should come up as long as the user is focused in the sql editor
+
+7. Utilized shadecn's UI library 
+2. Used https://www.npmjs.com/package/@monaco-editor/react for the sql editor
+3. Built this fullstack app in nextjs 
 
 ## Getting Started
-
-First, run the development server:
-
-```bash
-npm run dev
-```
+1. on root directory, run ```npm install``` to install all the dependencies
+2. Initialiaze Prisma (if not already done), ```npx prisma init```
+3. If your Prisma schema is ready and you want to create the database tables, run ```npx prisma migrate dev --name init```
+4. Seed the database locally, ```npx prisma db seed```
+5. Start the dev server, ```npm run dev```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-
-
 ## Deploy on Vercel
-
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
-
-
 
 
 # Locally build Schema and initialize mock data
@@ -39,7 +43,6 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 ```npx prisma studio``` 
 
 
-
 ## AI Chatbox Stress Test Prompts:
 - List all customers who spent more than $1000 in total, including each product they purchased, the quantity, unit price, and the total spent by the customer
 - For each product category, show the top 3 most purchased products by quantity. Include product name, category, total quantity sold, and total revenue for that product.
@@ -54,5 +57,6 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 
 
 ## Challenges Learned:
-- Rewrote the prompt for AI multiple times to get its sql query realiability perfectly. One issue was that not only the prompt had to valid with the current schema, but valid in PostGres-syntax query, but also valid in Prisma. Afterward, the AI response also needs to be serialized, so that it can send over via NextApiResponse json.
+- Rewrote the prompt for AI multiple times to get its sql query realiability perfectly. One issue was that not only the prompt had to valid with the current schema, but valid in Postgres-syntax query, but also valid in Prisma. Afterward, the AI response also needs to be serialized, so that it can send over via NextApiResponse json.
 - similiarly with AI Sql autocompletion, I had to be specific with the rules. Also, it needed to be clever to know not only the entire context of the current text in the editor, but also its cursor position within the text.
+- Had to learn the quirks of how Prisma handles its database, the logistic of Postgres database, and how OpenAI assumes certain rules of Prisma and Postgres from its trained model. 
